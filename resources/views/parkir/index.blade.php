@@ -12,6 +12,7 @@
             <th>Nomor Plat</th>
             <th>Jenis</th>
             <th>Waktu Masuk</th>
+            <th>Tarif</th>
             <th>Petugas</th>
             <th>Aksi</th>
         </tr>
@@ -21,8 +22,9 @@
         <tr>
             <td>{{ $parkir->id }}</td>
             <td>{{ $parkir->kendaraan->nomor_plat }}</td>
-            <td>{{ $parkir->kendaraan->jenis_kendaraan }}</td>
+            <td>{{ ucfirst($parkir->kendaraan->jenis_kendaraan) }}</td>
             <td>{{ $parkir->waktu_masuk->format('d/m/Y H:i') }}</td>
+            <td><strong>Rp {{ number_format($parkir->tarif) }}</strong></td>
             <td>{{ $parkir->user->name }}</td>
             <td>
                 <form action="{{ route('parkir.keluar', $parkir) }}" method="POST" class="d-inline">

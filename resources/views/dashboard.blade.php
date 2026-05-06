@@ -23,7 +23,7 @@
     <div class="col-md-4">
         <div class="card">
             <div class="card-body">
-                <h5 class="card-title">Pendapatan Hari Ini</h5>
+                <h5 class="card-title">Pendapatan</h5>
                 <h2>Rp {{ number_format($totalPendapatan) }}</h2>
             </div>
         </div>

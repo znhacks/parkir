@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Kendaraan;
 use App\Models\Parkir;
 use App\Models\ParkirHistory;
+use App\Helpers\TarifHelper;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Carbon\Carbon;
@@ -30,6 +31,7 @@ class ParkirController extends Controller
 
     /**
      * Store a newly created resource in storage.
+     * Automatically sets tarif based on vehicle type.
      */
     public function store(Request $request)
     {
@@ -50,10 +52,14 @@ class ParkirController extends Controller
             return back()->withErrors(['nomor_plat' => 'Kendaraan sudah parkir']);
         }
 
+        // Get tarif based on vehicle type
+        $tarif = TarifHelper::getTarifByJenis($kendaraan->jenis_kendaraan);
+
         $parkir = Parkir::create([
             'kendaraan_id' => $kendaraan->id,
             'waktu_masuk' => now(),
             'status' => 'masuk',
+            'tarif' => $tarif,
             'user_id' => Auth::id(),
         ]);
 
@@ -65,7 +71,7 @@ class ParkirController extends Controller
             'user_id' => Auth::id(),
         ]);
 
-        return redirect()->route('parkir.index')->with('success', 'Kendaraan masuk berhasil');
+        return redirect()->route('parkir.index')->with('success', 'Kendaraan masuk berhasil. Tarif: Rp ' . number_format($tarif));
     }
 
     /**
@@ -100,27 +106,39 @@ class ParkirController extends Controller
         //
     }
 
+    /**
+     * Process vehicle exit and apply tarif
+     */
     public function keluar($id)
     {
         $parkir = Parkir::findOrFail($id);
+        
+        // Calculate and apply tarif
+        $tarif = $parkir->calculateTarif();
+
+        $oldData = $parkir->toArray();
+
         $parkir->update([
             'waktu_keluar' => now(),
             'status' => 'keluar',
-            'tarif' => $parkir->calculateTarif(),
+            'tarif' => $tarif,
         ]);
 
         // Log history
         ParkirHistory::create([
             'parkir_id' => $parkir->id,
             'aksi' => 'keluar',
-            'data_lama' => ['status' => 'masuk'],
+            'data_lama' => $oldData,
             'data_baru' => $parkir->toArray(),
             'user_id' => Auth::id(),
         ]);
 
-        return redirect()->route('parkir.index')->with('success', 'Kendaraan keluar berhasil');
+        return redirect()->route('parkir.index')->with('success', 'Kendaraan keluar berhasil. Tarif: Rp ' . number_format($tarif));
     }
 
+    /**
+     * Display parking history with optional date filter
+     */
     public function history(Request $request)
     {
         $query = Parkir::with('kendaraan', 'user')->where('status', 'keluar');

@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use App\Helpers\TarifHelper;
 
 class Parkir extends Model
 {
@@ -38,13 +39,27 @@ class Parkir extends Model
         return $this->hasMany(ParkirHistory::class);
     }
 
+    /**
+     * Calculate tarif based on vehicle type
+     * 
+     * @return int
+     */
     public function calculateTarif()
     {
-        if ($this->status === 'keluar' && $this->waktu_keluar) {
-            $duration = $this->waktu_masuk->diffInHours($this->waktu_keluar, true);
-            $rate = $this->kendaraan->jenis_kendaraan === 'motor' ? 2000 : 5000;
-            return ceil($duration) * $rate;
+        return TarifHelper::calculateExitTarif($this);
+    }
+
+    /**
+     * Get tarif by vehicle type
+     * 
+     * @return int
+     */
+    public function getTarifByVehicleType()
+    {
+        if (!$this->kendaraan) {
+            return 0;
         }
-        return 0;
+
+        return TarifHelper::getTarifByJenis($this->kendaraan->jenis_kendaraan);
     }
 }

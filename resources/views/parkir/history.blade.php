@@ -27,17 +27,21 @@
         </tr>
     </thead>
     <tbody>
-        @foreach($histories as $parkir)
+        @forelse($histories as $parkir)
         <tr>
             <td>{{ $parkir->id }}</td>
             <td>{{ $parkir->kendaraan->nomor_plat }}</td>
-            <td>{{ $parkir->kendaraan->jenis_kendaraan }}</td>
+            <td>{{ ucfirst($parkir->kendaraan->jenis_kendaraan) }}</td>
             <td>{{ $parkir->waktu_masuk->format('d/m/Y H:i') }}</td>
             <td>{{ $parkir->waktu_keluar ? $parkir->waktu_keluar->format('d/m/Y H:i') : '-' }}</td>
-            <td>Rp {{ number_format($parkir->tarif) }}</td>
+            <td><strong>Rp {{ number_format($parkir->tarif) }}</strong></td>
             <td>{{ $parkir->user->name }}</td>
         </tr>
-        @endforeach
+        @empty
+        <tr>
+            <td colspan="7" class="text-center">Tidak ada riwayat parkir</td>
+        </tr>
+        @endforelse
     </tbody>
 </table>
 @endsection

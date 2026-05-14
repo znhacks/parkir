@@ -25,6 +25,7 @@ Route::middleware('auth')->group(function () {
     Route::resource('parkir', ParkirController::class);
     Route::post('parkir/{id}/keluar', [ParkirController::class, 'keluar'])->name('parkir.keluar');
     Route::get('riwayat', [ParkirController::class, 'history'])->name('parkir.history');
+    Route::get('riwayat/download', [ParkirController::class, 'downloadHistory'])->name('parkir.download');
 
     // Admin only routes
     Route::middleware('admin')->group(function () {

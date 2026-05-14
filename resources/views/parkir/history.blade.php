@@ -1,7 +1,12 @@
 @extends('layouts.app')
 
 @section('content')
-<h1>Riwayat Parkir</h1>
+<div class="d-flex justify-content-between align-items-center mb-3">
+    <h1>Riwayat Parkir</h1>
+    <a href="{{ route('parkir.download') }}{{ request('date') ? '?date=' . request('date') : '' }}" class="btn btn-success">
+        <i class="bi bi-file-earmark-excel"></i> Download Excel
+    </a>
+</div>
 
 <form action="{{ route('parkir.history') }}" method="GET" class="mb-3">
     <div class="row">
